@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <title>CareQueue | Farmashiyaha</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        .patient-item { border-left: 5px solid #16a34a; background: #f0fdf4; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        h3 { margin-top: 0; color: #065f46; }
+        .label { font-weight: bold; color: #374151; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center;">Daawooyinka la Sugayo</h2>
+    <div id="pharmacy-view">
+        <p style="text-align:center;">Waxaa la sugayaa bukaanno...</p>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://carequeue-manager-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('pharmacy_queue').on('value', (snap) => {
+            const data = snap.val();
+            const view = document.getElementById('pharmacy-view');
+            
+            if (data) {
+                view.innerHTML = ""; 
+                Object.keys(data).forEach(key => {
+                    const p = data[key];
+                    view.innerHTML += `
+                        <div class="card patient-item">
+                            <h3>Bukaanka: ${p.name}</h3>
+                            <p><span class="label">Xanuunka/Cabashada:</span> ${p.complaint}</p>
+                            <p><span class="label">Daawooyinka loo qoray:</span> ${p.prescription}</p>
+                            <button onclick="markDone('${key}')" style="background:#16a34a; color:white; border:none; padding:10px; width:100%; cursor:pointer; border-radius:4px;">Daawo la bixiyey</button>
+                        </div>
+                    `;
+                });
+            } else {
+                view.innerHTML = "<p style='text-align:center;'>Ma jiro bukaan daawo loo qoray.</p>";
+            }
+        });
+
+        function markDone(key) {
+            db.ref('pharmacy_queue/' + key).remove();
+            alert("Daawooyinka waa la bixiyey!");
+        }
+    </script>
+</body>
+</html>
