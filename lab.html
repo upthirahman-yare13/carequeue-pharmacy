@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+    <meta charset="UTF-8">
+    <title>CareQueue | Shaybaarka</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { background-color: #fff7ed; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        .lab-item { border-left: 5px solid #ea580c; background: #fffbeb; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        h3 { margin-top: 0; color: #9a3412; }
+        .label { font-weight: bold; color: #451a03; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center;">Baaritaannada Shaybaarka</h2>
+    <div id="lab-view">
+        <p style="text-align:center;">Waxaa la sugayaa bukaanno...</p>
+    </div>
+
+    <script>
+        const firebaseConfig = { databaseURL: "https://carequeue-manager-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Waxaan la soconaynaa (listen) `lab_queue`
+        db.ref('lab_queue').on('value', (snap) => {
+            const data = snap.val();
+            const view = document.getElementById('lab-view');
+            
+            if (data) {
+                view.innerHTML = ""; 
+                Object.keys(data).forEach(key => {
+                    const p = data[key];
+                    view.innerHTML += `
+                        <div class="card lab-item">
+                            <h3>Bukaanka: ${p.name}</h3>
+                            <p><span class="label">Cabashada:</span> ${p.complaint}</p>
+                            <p style="color: #ea580c;"><strong>Baaritaanka laga rabo:</strong> ${p.test}</p>
+                            <p><small>Waqtiga: ${p.time}</small></p>
+                            <button onclick="markDone('${key}')" style="background:#ea580c; color:white; border:none; padding:10px; width:100%; cursor:pointer; border-radius:4px;">Baaritaanka waa la dhammaystiray</button>
+                        </div>
+                    `;
+                });
+            } else {
+                view.innerHTML = "<p style='text-align:center;'>Ma jiro baaritaan sugaya.</p>";
+            }
+        });
+
+        function markDone(key) {
+            db.ref('lab_queue/' + key).remove();
+            alert("Baaritaankii waa la dhammeeyey!");
+        }
+    </script>
+</body>
+</html>
